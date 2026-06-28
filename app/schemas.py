@@ -232,6 +232,8 @@ class RoutePoint(BaseModel):
     estimated_weight: float
 
 
+# ==================== 评价相关 ====================
+
 class RatingCreate(BaseModel):
     score: int = Field(ge=1, le=5, description="评分，1到5星")
     comment: Optional[str] = Field(None, max_length=200, description="评语，不超过200字")

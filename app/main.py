@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .database import engine, Base
-from .routers import auth, users, pricing, orders, collector
+from .routers import auth, users, pricing, orders, collector, reviews
 
 Base.metadata.create_all(bind=engine)
 
@@ -25,6 +25,7 @@ app.include_router(users.router)
 app.include_router(pricing.router)
 app.include_router(orders.router)
 app.include_router(collector.router)
+app.include_router(reviews.router)
 
 
 @app.get("/", tags=["根路径"])
