@@ -7,7 +7,7 @@ from sqlalchemy import func
 from ..database import get_db
 from ..models import User, Order, Rating
 from ..schemas import RatingCreate, RatingResponse, CollectorRatingSummary
-from ..dependencies import get_current_resident, get_current_user
+from ..dependencies import get_current_user
 
 router = APIRouter(prefix="/orders", tags=["评价"])
 
@@ -16,17 +16,26 @@ router = APIRouter(prefix="/orders", tags=["评价"])
 def rate_order(
     order_id: int,
     rating_data: RatingCreate,
-    current_user: User = Depends(get_current_resident),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    order = db.query(Order).filter(
-        Order.id == order_id,
-        Order.user_id == current_user.id
-    ).first()
+    if current_user.role != "resident":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="只有居民用户才能评价订单"
+        )
+
+    order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="订单不存在"
+        )
+
+    if order.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="只能评价自己的订单"
         )
 
     if order.status != "completed":
