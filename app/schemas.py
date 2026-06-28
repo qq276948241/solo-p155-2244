@@ -230,3 +230,30 @@ class RoutePoint(BaseModel):
     contact_phone: str
     sequence: int
     estimated_weight: float
+
+
+class RatingCreate(BaseModel):
+    score: int = Field(ge=1, le=5, description="评分，1到5星")
+    comment: Optional[str] = Field(None, max_length=200, description="评语，不超过200字")
+
+
+class RatingResponse(BaseModel):
+    id: int
+    order_id: int
+    user_id: int
+    collector_id: int
+    score: int
+    comment: Optional[str] = None
+    user_name: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class CollectorRatingSummary(BaseModel):
+    collector_id: int
+    collector_name: str
+    average_score: float
+    total_count: int
+    ratings: List[RatingResponse]

@@ -73,6 +73,7 @@ class Order(Base):
     collector = relationship("User", back_populates="collector_orders", foreign_keys=[collector_id])
     address = relationship("Address", back_populates="orders")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
+    rating = relationship("Rating", back_populates="order", uselist=False, cascade="all, delete-orphan")
 
 
 class OrderItem(Base):
@@ -89,3 +90,19 @@ class OrderItem(Base):
 
     order = relationship("Order", back_populates="items")
     category = relationship("Category", back_populates="order_items")
+
+
+class Rating(Base):
+    __tablename__ = "ratings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    order_id = Column(Integer, ForeignKey("orders.id"), unique=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    collector_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    score = Column(Integer, nullable=False)
+    comment = Column(String(200), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    order = relationship("Order", back_populates="rating")
+    user = relationship("User", foreign_keys=[user_id])
+    collector = relationship("User", foreign_keys=[collector_id])
